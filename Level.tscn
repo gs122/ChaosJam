@@ -1,0 +1,134 @@
+[gd_scene load_steps=18 format=3 uid="uid://5tcfta6mfjpv"]
+
+[ext_resource type="Script" path="res://World.gd" id="1_0c01a"]
+[ext_resource type="Texture2D" uid="uid://dgg1f7ocal7vd" path="res://whitetile.png" id="2_5sq5s"]
+[ext_resource type="PackedScene" uid="uid://blgl8nsxjqndq" path="res://meeble.tscn" id="2_vcm6r"]
+[ext_resource type="Script" path="res://Background.gd" id="3_ff37p"]
+[ext_resource type="Script" path="res://MyUI.gd" id="5_38eo1"]
+[ext_resource type="PackedScene" uid="uid://cxegkd5a880co" path="res://greeble.tscn" id="6_qktrt"]
+[ext_resource type="Script" path="res://MyCamera.gd" id="6_y2aml"]
+[ext_resource type="Script" path="res://Room.gd" id="7_2rmmu"]
+[ext_resource type="AudioStream" uid="uid://ce5iblh71dktq" path="res://sofia.mp3" id="7_uj02c"]
+[ext_resource type="AudioStream" uid="uid://b0p2ms72lw8gd" path="res://greebleHurt.wav" id="10_va76e"]
+
+[sub_resource type="Animation" id="Animation_l0ng0"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("BackgroundSprite:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 0, 0, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_xg00t"]
+resource_name = "WhiteRed"
+length = 5.0
+loop_mode = 2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("BackgroundSprite:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(0.431373, 0, 0, 1), Color(1, 1, 1, 1)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_dwxfm"]
+_data = {
+"RESET": SubResource("Animation_l0ng0"),
+"WhiteRed": SubResource("Animation_xg00t")
+}
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_7cmjf"]
+animation = &"WhiteRed"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_ji75b"]
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_4ktfh"]
+states/Start/position = Vector2(201, 100)
+states/WhiteRed/node = SubResource("AnimationNodeAnimation_7cmjf")
+states/WhiteRed/position = Vector2(367, 109.5)
+transitions = ["Start", "WhiteRed", SubResource("AnimationNodeStateMachineTransition_ji75b")]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bo2mw"]
+
+[node name="World" type="Node2D"]
+script = ExtResource("1_0c01a")
+
+[node name="Background" type="Area2D" parent="."]
+script = ExtResource("3_ff37p")
+
+[node name="BackgroundSprite" type="Sprite2D" parent="Background"]
+modulate = Color(1, 0, 0, 1)
+position = Vector2(250.5, 252.5)
+scale = Vector2(8.70313, 8.54688)
+texture = ExtResource("2_5sq5s")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Background"]
+speed_scale = 0.5
+libraries = {
+"": SubResource("AnimationLibrary_dwxfm")
+}
+
+[node name="AnimationTree" type="AnimationTree" parent="Background"]
+tree_root = SubResource("AnimationNodeStateMachine_4ktfh")
+anim_player = NodePath("../AnimationPlayer")
+active = true
+
+[node name="SpawnTimer" type="Timer" parent="."]
+process_callback = 0
+one_shot = true
+autostart = true
+
+[node name="WeaponTimer" type="Timer" parent="."]
+wait_time = 2.0
+one_shot = true
+autostart = true
+
+[node name="Meeble" parent="." instance=ExtResource("2_vcm6r")]
+
+[node name="Greeble" parent="." instance=ExtResource("6_qktrt")]
+
+[node name="Room" type="Area2D" parent="."]
+position = Vector2(576, 323.817)
+scale = Vector2(57.587, 32.373)
+script = ExtResource("7_2rmmu")
+metadata/_edit_group_ = true
+metadata/_edit_lock_ = true
+
+[node name="RoomCollisionShape" type="CollisionShape2D" parent="Room"]
+shape = SubResource("RectangleShape2D_bo2mw")
+
+[node name="MyUI" type="Label" parent="."]
+offset_right = 40.0
+offset_bottom = 23.0
+text = "GREEBLES REKT: ???"
+script = ExtResource("5_38eo1")
+
+[node name="MyCamera" type="Camera2D" parent="."]
+position = Vector2(250, 250)
+script = ExtResource("6_y2aml")
+
+[node name="MusicPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("7_uj02c")
+volume_db = -18.0
+autoplay = true
+
+[node name="SFXPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("10_va76e")
+volume_db = -13.0
+
+[connection signal="timeout" from="SpawnTimer" to="." method="_on_spawn_timer_timeout"]
+[connection signal="timeout" from="WeaponTimer" to="Meeble" method="_on_weapon_timer_timeout"]
+[connection signal="area_entered" from="Meeble" to="Meeble" method="_on_area_entered"]

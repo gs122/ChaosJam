@@ -1,0 +1,15 @@
+AudioStreamPlayer
+AudioStreamPlayer3D
+AudioStreamPlayer2D
+AnimationTree
+AnimationPlayer
+Area2D
+TextureRect
+Camera2D
+Button
+Label
+Timer
+CollisionShape2D
+CollisionPolygon2D
+CharacterBody2D
+Node2D

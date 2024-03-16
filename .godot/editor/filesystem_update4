@@ -1,1 +1,7 @@
-res://greeble.tscn
+res://Scenes/greeble.tscn
+res://Scenes/Title.tscn
+res://Scenes/GameOver.tscn
+res://Scripts/Greeble.gd
+res://Scripts/Title.gd
+res://Scenes/meeble.tscn
+res://Scenes/Level.tscn
